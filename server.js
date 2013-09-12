@@ -7,6 +7,7 @@ var util = require('util'),
 
 var DEFAULT_PORT = 8000;
 
+
 function main(argv) {
   new HttpServer({
     'GET': createServlet(StaticServlet),
