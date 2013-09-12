@@ -1,0 +1,16 @@
+﻿body {
+    background-color:#1e1e1e;
+    color:#fff;
+}
+
+.map-container
+{
+    max-width: 670px;
+    max-height:250px;
+    height:250px;
+}
+
+#map
+{
+    color: #000;
+}
