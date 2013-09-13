@@ -4,7 +4,7 @@ var Client = require('node-rest-client').Client;
 var app = express();
 //var fs = require('fs');
 xml2js = require('xml2js');
-
+var port = process.env.PORT || 1337;
 
 
 app.get('/', function(req, res) {
@@ -77,4 +77,4 @@ app.configure(function() {
     app.use(app.router);    
 });
 
-app.listen(8000);
+app.listen(port);
