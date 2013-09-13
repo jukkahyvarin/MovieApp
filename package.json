@@ -1,0 +1,12 @@
+{
+    "name"        : "MyMovieApp",
+    "description" : "",
+    "version"     : "0.0.0",
+    "author"      : "Jukka Hyvärinen",
+    "dependencies": {
+        "express" : "*",
+     },
+    "scripts": {
+        "start" : "NODE_ENV=production node app.js"
+    }
+}
