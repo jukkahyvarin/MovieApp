@@ -5,7 +5,7 @@
     "author"      : "Jukka Hyvärinen",
     "dependencies": {
         "express" : "*",
-		"node-rest-client": "0.7.0",
+		"node-rest-client": "*",
 		"xml2js": "*"
      },
     "scripts": {
