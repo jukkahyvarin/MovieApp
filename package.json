@@ -5,6 +5,8 @@
     "author"      : "Jukka Hyvärinen",
     "dependencies": {
         "express" : "*",
+		"node-rest-client": "*",
+		"xml2js": "*"
      },
     "scripts": {
         "start" : "NODE_ENV=production node app.js"
