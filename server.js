@@ -2,7 +2,7 @@ var express = require('express');
 var Client = require('node-rest-client').Client;
 
 var app = express();
-var fs = require('fs');
+//var fs = require('fs');
 xml2js = require('xml2js');
 
 
@@ -77,4 +77,4 @@ app.configure(function() {
     app.use(app.router);    
 });
 
-app.listen(8001);
+app.listen(8000);

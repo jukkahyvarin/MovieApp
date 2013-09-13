@@ -9,6 +9,6 @@
 		"xml2js": "*"
      },
     "scripts": {
-        "start" : "NODE_ENV=production node app.js"
+        "start" : "NODE_ENV=production node server.js"
     }
 }
