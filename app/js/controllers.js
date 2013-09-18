@@ -20,11 +20,68 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
         }
     });
 
+
+
     $scope.areaselected = function (a) {
         $scope.selectedarea = a;
     }
 
+    $scope.date = $routeParams.date ? $routeParams.date : new Date();
 
+    $scope.selectDate = function (d) {
+        $scope.date = d;
+    }
+
+    moviesService.getScheduleDates($routeParams.areaId).then(function (data) {
+        $scope.dates = data.Dates.dateTime;
+        $scope.date = !$routeParams.date ? $scope.dates[0] : $routeParams.date;
+    });
+
+    $scope.times = [
+       { t: '08:00' },
+       { t: '09:00' },
+       { t: '10:00' },
+       { t: '11:00' },
+       { t: '12:00' },
+       { t: '13:00' },
+       { t: '14:00' },
+       { t: '15:00' },
+       { t: '16:00' },
+       { t: '17:00' },
+       { t: '18:00' },
+       { t: '19:00' },
+       { t: '20:00' },
+       { t: '21:00' },
+       { t: '22:00' },
+       { t: '23:00' }
+    ];
+
+    setCurrentTime();
+
+    function setCurrentTime() {
+        var curTime = new Date();
+        if ($routeParams.date) {
+            var selDate = new Date($routeParams.date);
+            if (selDate && selDate.getDate() != curTime.getDate()) {
+                $scope.selectedTime = $scope.times[0];
+                return;
+            }
+        }
+        
+        var hours = curTime.getHours().toString();
+        var mytime = hours.length == 1 ? '0' + hours + ':00' : hours + ':00';
+
+        angular.forEach($scope.times, function (v, k) {
+            if (v.t == mytime) {
+                $scope.selectedTime = v;
+            }
+        });
+
+    }
+
+    $scope.selectTime = function (t) {
+        $scope.selectedTime = t;
+    };
    
 	//$scope.getClass = function (path) {
 	//    if ($location.path().substr(0, path.length) == path) {
@@ -63,90 +120,39 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
 app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesService) {
     
     $scope.area = $routeParams.areaId;
-    $scope.selectedGenre = 'Valitse tyyppi';
-
-    var d = new Date();
-    $scope.times = [
-        { t:'08:00' },
-        { t:'09:00' },
-        { t:'10:00' },
-        { t:'11:00' },
-        { t:'12:00' },
-        { t:'13:00' },
-        { t:'14:00' },
-        { t:'15:00' },
-        { t:'16:00' },
-        { t:'17:00' },
-        { t:'18:00' },
-        { t:'19:00' },
-        { t:'20:00' },
-        { t:'21:00' },
-        { t:'22:00' },
-        { t:'23:00' }
-    ];
-
-    setCurrentTime();
-  
-    if ($routeParams.date) {
-        $scope.date = $routeParams.date;
-    }
-
-    moviesService.getScheduleDates($routeParams.areaId).then(function (data) {
-        $scope.dates = data.Dates.dateTime;
-        $scope.date = !$routeParams.date ? $scope.dates[0] : $routeParams.date;
-    });
-
+    
+    $scope.date = $routeParams.date ? $routeParams.date : new Date();
+    $scope.selectedTime = $routeParams.time ? $routeParams.time : '08:00';
+    
     var schedDate = $filter('date')($scope.date, 'dd.MM.yyyy');
     moviesService.getSchedule($routeParams.areaId, schedDate).then(function (data) {
-        $scope.movies = data.Schedule.Shows.Show;
+        var movies = $filter('filter')(data.Schedule.Shows.Show, $scope.timeFilter);
+        $scope.movies = movies;
         getTypes();
     });
-
-    $scope.selectTime = function (t) {
-        $scope.selectedTime = t;
-    };
 
     $scope.selectGenre = function (g) {
         $scope.selectedGenre = g;
     }
 
+   
     $scope.timeFilter = function (item) {
-        var dateStr = $scope.date.replace('00:00:00', $scope.selectedTime.t + ':00');
+        var dateStr = $scope.date.toString().replace('00:00:00', $scope.selectedTime + ':00');
         var filterDate = new Date(dateStr);
         var itemDate = new Date(item.dttmShowStart);
         var ret = itemDate >= filterDate;
         return ret;
     };
 
+   
     $scope.genreFilter = function (item) {
-        if ($scope.selectedGenre == 'Valitse tyyppi') {
+        if (!$scope.selectedGenre) {
             return true;
         }
-        return item.Genres.indexOf($scope.selectedGenre, 0) > -1;
-        
+        return item.Genres.indexOf($scope.selectedGenre.name, 0) > -1;
     };
 
-    function setCurrentTime() {
-        var curTime = new Date();
-        if ($routeParams.date) {
-            var selDate = new Date($routeParams.date);
-            if (selDate && selDate.getDate() != curTime.getDate()) {
-                $scope.selectedTime = $scope.times[0];
-                return;
-            }
-        }
-
-      
-        var hours = curTime.getHours().toString();
-        var mytime = hours.length == 1 ? '0' + hours + ':00' : hours + ':00';
-
-        angular.forEach($scope.times, function (v, k) {
-            if (v.t == mytime) {
-                $scope.selectedTime = v;
-            }
-        });
-
-    }
+  
 
     function getTypes() {
         var genres = [];
@@ -159,7 +165,12 @@ app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesServ
                 }
             }
         });
-        $scope.genres = genres;
+        var gns = [];
+        angular.forEach(genres, function (v, k) {
+            var genre = { name: v, checked: false };
+            gns.push(genre);
+        });
+        $scope.genres = gns;
     }
  
 });
@@ -202,12 +213,12 @@ app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesS
 
     function searchTheatre(request) {
         var service = new google.maps.places.PlacesService(map);
-        service.textSearch(request, callback);
+        service.textSearch(request, searchCallback);
     }
 
-    function callback(results, status) {
+    function searchCallback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-            var loc = new google.maps.LatLng(results[0].geometry.location.pb, results[0].geometry.location.qb);
+            var loc = new google.maps.LatLng(results[0].geometry.location.ob, results[0].geometry.location.pb);
             var marker = new google.maps.Marker({
                 position: loc,
                 map: map,

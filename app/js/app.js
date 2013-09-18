@@ -21,7 +21,11 @@ app.config(function($routeProvider) {
     	 {
     	     templateUrl: 'partials/movies.html', controller: 'MoviesCtrl'
     	 })
-    	 .when('/leffat/:areaId/:movieId/:date',
+         .when('/leffat/:areaId/:date/:time',
+    	 {
+    	     templateUrl: 'partials/movies.html', controller: 'MoviesCtrl'
+    	 })
+    	 .when('/leffa/:areaId/:movieId/:date',
     	 {
     	     templateUrl: 'partials/movieInfo.html', controller: 'MovieInfoCtrl'
     	 })

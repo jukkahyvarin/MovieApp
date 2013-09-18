@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/bootstrap.min.css"/>
   <link rel="stylesheet" href="css/MySpaApp.css"/>
   <link rel="stylesheet" href="css/app.css"/>
+    <link rel="stylesheet" href="css/animate-custom.css"/>
 </head>
 <body>
 
@@ -29,7 +30,7 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <a class="navbar-brand" href="#">Leffahaku</a>
+    <a class="navbar-brand" href="/">Leffahaku</a>
   </div>
  
       
@@ -38,17 +39,47 @@
       <div class="collapse navbar-collapse navbar-ex1-collapse" data-ng-controller="NavCtrl">
         <!-- .nav, .navbar-search, .navbar-form, etc -->
         <ul class="nav navbar-nav">
-          
         <li class="dropdown">
+            
             <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
                 {{selectedarea.Name}}
                 <b class="caret"></b>
             </a>
        <ul class="dropdown-menu" role="menu">
             <li data-ng-repeat="a in areas">
-                <a href="#/leffat/alue/{{a.ID}}" data-ng-click="areaselected(a)">{{a.Name}}</a>
+                <a href="#/leffat/{{a.ID}}/{{date}}/{{selectedTime.t}}" data-ng-click="areaselected(a)">{{a.Name}}</a>
             </li>
        </ul>
+        </li>
+
+        <li class="nav-divider"></li>
+
+        <li class="dropdown">
+          
+        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
+            {{date | date:'dd.MM.yyyy'}}
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+            <li data-ng-repeat="d in dates">
+                <a href="#/leffat/{{selectedarea.ID}}/{{d}}/{{selectedTime.t}}" data-ng-click="selectDate(d)">{{d | date:'dd.MM.yyyy'}}</a>
+            </li>
+        </ul>
+          
+        </li>
+         <li class="nav-divider"></li>
+        <li class="dropdown">
+
+             <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
+                {{selectedTime.t}}
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+                <li data-ng-repeat="t in times">
+                    <a href="#/leffat/{{selectedarea.ID}}/{{date}}/{{selectedTime.t}}" data-ng-click="selectTime(t)">{{t.t}}</a>
+                </li>
+            </ul>
+
         </li>
 
         </ul>
@@ -59,16 +90,17 @@
 </nav>
    
 
-  <div ng-view></div>
+  <div ng-view data-ng-animate="{enter:'animated fadeInLeft', leave:'animated fadeOutRight'}"></div>
 
   
 
   <!-- In production use:
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js"></script>
   -->
-
+  
   <script src="js/jquery/jquery-2.0.3.min.js"></script>
-  <script src="lib/angular/angular.js"></script>
+   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+  <!--<script src="lib/angular/angular.js"></script>-->
   <script src="js/bootstrap/bootstrap.min.js"></script>
   <script src="js/app.js"></script>
   <script src="js/services/omakaupunkiService.js"></script>
