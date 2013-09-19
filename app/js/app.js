@@ -1,7 +1,7 @@
 'use strict';
 
 
-var app = angular.module('myApp', ['ngRoute']);
+var app = angular.module('myApp', ['ngRoute', 'ngAnimate']);
 
 // enable cross domain calls
 app.config(['$httpProvider', function ($httpProvider) {
@@ -32,16 +32,4 @@ app.config(function($routeProvider) {
     	.otherwise({redirectTo: '/leffat/alue/1014'});
 });
 
-app.config(['$provide', function ($provide) {
-    $provide.decorator("$browser", ['$delegate', function ($browser) {
-        var _url = $browser.url;
-        $browser.url = function () {
-            var res = _url.apply(this, arguments);
-            if (arguments.length === 0) {
-                res = res.replace(/%23/g, '#');
-            }
-            return res;
-        };
-        return $browser;
-    }]);
-}]);
+

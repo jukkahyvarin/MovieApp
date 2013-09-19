@@ -33,7 +33,35 @@
      margin: 10px 0px 0px 0px;
 }
 
+.anim-fade.ng-enter
+{
+    animation: fadeIn .5s;
+}
 
+.anim-fade.ng-leave
+{
+    animation: fadeOut .5s;
+}
+
+.anim-slide.ng-enter
+{
+    animation: slideInLeft .5s;
+}
+
+.anim-slide.ng-leave
+{
+     animation: fadeOutDown .2s;
+}
+
+.anim-flip
+{
+    animation: flipInY 1.5s;
+}
+
+/*.anim-flip.ng-leave
+{
+    animation: rotateOutUpLeft 1.0s;
+}*/
 
 /* Animations */
 /*
