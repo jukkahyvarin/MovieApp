@@ -30,4 +30,18 @@ app.config(function($routeProvider) {
     	     templateUrl: 'partials/movieInfo.html', controller: 'MovieInfoCtrl'
     	 })
     	.otherwise({redirectTo: '/leffat/alue/1014'});
-  });
+});
+
+app.config(['$provide', function ($provide) {
+    $provide.decorator("$browser", ['$delegate', function ($browser) {
+        var _url = $browser.url;
+        $browser.url = function () {
+            var res = _url.apply(this, arguments);
+            if (arguments.length === 0) {
+                res = res.replace(/%23/g, '#');
+            }
+            return res;
+        };
+        return $browser;
+    }]);
+}]);
