@@ -58,6 +58,11 @@
     animation: flipInY 1.5s;
 }
 
+.loader
+{
+    padding-bottom:10px;
+}
+
 /*.anim-flip.ng-leave
 {
     animation: rotateOutUpLeft 1.0s;

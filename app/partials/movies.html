@@ -25,6 +25,12 @@
 
    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <h4>Elokuvat</h4>
+            <div class="loader text-center">
+            <div data-ng-show="loadingMovies">
+            <p>Loading...</p>
+                <img src="/img/484.png" alt="Loading" />
+            </div>
+            </div>
     <ul class="media-list">
         <li class="media col-xs-12 col-sm-12 col-md-6 col-lg-4 anim-slide" data-ng-repeat="m in movies | filter:genreFilter"><!-- | filter:searchText-->
             <a class="pull-left" href="#">

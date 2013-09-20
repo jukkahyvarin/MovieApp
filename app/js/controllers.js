@@ -3,6 +3,8 @@
 
 app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
 	
+   
+
    moviesService.getAreas().then(function (data) {
         var firstArea = data.TheatreAreas.TheatreArea[1];
         $scope.areas = data.TheatreAreas.TheatreArea;
@@ -18,6 +20,7 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
         else {
             $scope.selectedarea = $scope.areas[0];
         }
+       
     });
 
 
@@ -82,6 +85,29 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
     $scope.selectTime = function (t) {
         $scope.selectedTime = t;
     };
+
+    //function getCity() {
+    //    if (navigator.geolocation) {
+    //        navigator.geolocation.getCurrentPosition(function (position) {
+    //            var latLng = position.coords.latitude.toString() + ',' + position.coords.longitude.toString();
+    //            GMapsService.getAddress(latLng).then(function (data) {
+    //                var city;
+    //                if (data && data.results) {
+    //                    angular.forEach(data.results, function (r, k) {
+    //                        if (r.types[0] == "administrative_area_level_3") {
+    //                            angular.forEach(r.address_components, function (ac, k) {
+    //                                if (ac.types[0] == "administrative_area_level_3") {
+    //                                    city= ac.short_name;
+    //                                }
+    //                            });
+    //                        }
+    //                    });
+    //                }
+    //                $scope.currentCity = city;
+    //            });
+    //        });
+    //        }
+    //}
    
 	//$scope.getClass = function (path) {
 	//    if ($location.path().substr(0, path.length) == path) {
@@ -113,6 +139,7 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
     //    // handleNoGeolocation(false);
     //}
 	
+
 });
 
 
@@ -125,10 +152,13 @@ app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesServ
     $scope.selectedTime = $routeParams.time ? $routeParams.time : '08:00';
     
     var schedDate = $filter('date')($scope.date, 'dd.MM.yyyy');
+    $scope.loadingMovies = true;
+
     moviesService.getSchedule($routeParams.areaId, schedDate).then(function (data) {
         var movies = $filter('filter')(data.Schedule.Shows.Show, $scope.timeFilter);
         $scope.movies = movies;
         getTypes();
+        $scope.loadingMovies = false;
     });
 
     $scope.selectGenre = function (g) {
@@ -179,7 +209,7 @@ app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesS
     var schedDate = $filter('date')($routeParams.date, 'dd.MM.yyyy');
     var map;
 
-  
+    $scope.loadingMovies = true;
     moviesService.getMovie($routeParams.areaId, $routeParams.movieId, schedDate).then(function (data) {
         if ($.isArray(data.Schedule.Shows.Show)) {
             $scope.movie = data.Schedule.Shows.Show[0];
@@ -208,7 +238,7 @@ app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesS
         };
 
         searchTheatre(request);
-
+        $scope.loadingMovies = false;
     });
 
     function searchTheatre(request) {
