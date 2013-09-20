@@ -46,10 +46,12 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesS
 
         }, function () {
             // handleNoGeolocation(true);
+            $location.path('#/valitsealue');
         });
     } else {
         // Browser doesn't support Geolocation
         // handleNoGeolocation(false);
+        $location.path('#/valitsealue');
     }
 
 
