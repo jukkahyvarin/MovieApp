@@ -1,0 +1,16 @@
+﻿
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+      <div class="loader text-center">
+            <div data-ng-show="loadingAreas">
+            <p>Loading...</p>
+                <img src="/img/484.png" alt="Loading" />
+            </div>
+      </div>
+    <h3 class="text-center">Valitse alue / teatteri</h3>
+    <ul class="media-list area">
+        <li class="media" data-ng-repeat="a in areas">
+            <h4><a href="#/leffat/alue/{{a.ID}}" title="{{a.Name}}">{{a.Name}}</a></h4>
+        </li>
+    </ul>
+</div>

@@ -1,40 +1,121 @@
 'use strict';
 
 
+
+app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
+    // *** Map initialization ***
+    var radius = 0;
+    $scope.selectedTheatre = {};
+    $scope.selectedTheatreAddress = '';
+    $scope.userLocation = 'Haetaan sijaintia';
+    $scope.geocoding = true;
+    var map;
+    google.maps.visualRefresh = true;
+    var mapOptions = {
+        center: new google.maps.LatLng(66.29, 25.43),
+        zoom: 11,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    map = new google.maps.Map(document.getElementById("map"),
+        mapOptions);
+
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+
+            var loc = new google.maps.LatLng(position.coords.latitude,
+                                             position.coords.longitude);
+         
+
+            var marker = new google.maps.Marker({
+                position: loc,
+                map: map,
+                title: 'Sijaintisi'
+            });
+            map.setCenter(loc);
+            
+            var latLng = position.coords.latitude.toString() + ',' + position.coords.longitude.toString();
+            GMapsService.getAddress(latLng).then(function (data) {
+                if(data.results[0]) {
+                    $scope.userLocation = 'Sijaintisi: ' + data.results[0].formatted_address;
+                    searchTheatre();
+                }
+            });
+
+           
+
+        }, function () {
+            // handleNoGeolocation(true);
+        });
+    } else {
+        // Browser doesn't support Geolocation
+        // handleNoGeolocation(false);
+    }
+
+
+    function searchTheatre() {
+        radius = radius + 1000;
+        var request = {
+            location: map.center,
+            radius: radius,
+            query: 'Finnkino',
+            types: ['movie_theater']
+        };
+
+        var service = new google.maps.places.PlacesService(map);
+        service.textSearch(request, searchCallback);
+    }
+
+    function searchCallback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+            // found theatres
+            moviesService.getAreas().then(function (data) {
+                var theatres = data.TheatreAreas.TheatreArea;
+                var theatre;
+                angular.forEach(theatres, function (t, k) {
+                    var theatreName = results[0].name.replace('Finnkino','').trim();
+                    if (t.Name.indexOf(theatreName,0)>-1) {
+                        $scope.selectedTheatre = t;
+                        $scope.selectedTheatreAddress = results[0].formatted_address;
+
+                        var marker = new google.maps.Marker({
+                            position: results[0].geometry.location,
+                            map: map,
+                            title: t.Name
+                        });
+                        map.setCenter(results[0].geometry.location);
+                        $scope.geocoding = false;
+                    }
+                });
+            });
+        }
+        else if (status == 'ZERO_RESULTS' && radius < 50000) {
+            searchTheatre();
+        }
+        else {
+            $scope.geocoding = false;
+        }
+    }
+
+});
+
+
+
+app.controller('AreaCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
+    $scope.loadingAreas = true;
+    moviesService.getAreas().then(function (data) {
+        $scope.areas = data.TheatreAreas.TheatreArea;
+        $scope.loadingAreas = false;
+    });
+});
+
+
 app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
 	
    
-
-   moviesService.getAreas().then(function (data) {
-        var firstArea = data.TheatreAreas.TheatreArea[1];
-        $scope.areas = data.TheatreAreas.TheatreArea;
-        if ($routeParams.areaId) {
-            var selArea;
-            angular.forEach($scope.areas, function (a, key) {
-                if (a.ID == $routeParams.areaId) {
-                    selArea = a;
-                }
-            });
-            $scope.selectedarea = selArea;
-        }
-        else {
-            $scope.selectedarea = $scope.areas[0];
-        }
-       
-    });
-
-
-
-    $scope.areaselected = function (a) {
-        $scope.selectedarea = a;
-    }
-
     $scope.date = $routeParams.date ? $routeParams.date : new Date();
 
-    $scope.selectDate = function (d) {
-        $scope.date = d;
-    }
-
+   
     moviesService.getScheduleDates($routeParams.areaId).then(function (data) {
         $scope.dates = data.Dates.dateTime;
         $scope.date = !$routeParams.date ? $scope.dates[0] : $routeParams.date;

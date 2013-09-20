@@ -39,19 +39,7 @@
       <div class="collapse navbar-collapse navbar-ex1-collapse" data-ng-controller="NavCtrl">
         <!-- .nav, .navbar-search, .navbar-form, etc -->
         <ul class="nav navbar-nav">
-        <li class="dropdown">
-            
-            <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
-                {{selectedarea.Name}}
-                <b class="caret"></b>
-            </a>
-       <ul class="dropdown-menu" role="menu">
-            <li data-ng-repeat="a in areas">
-                <a href="#/leffat/{{a.ID}}/{{date}}/{{selectedTime.t}}" data-ng-click="areaselected(a)">{{a.Name}}</a>
-            </li>
-       </ul>
-        </li>
-
+    
         <li class="nav-divider"></li>
 
         <li class="dropdown">

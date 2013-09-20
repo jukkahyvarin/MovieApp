@@ -10,6 +10,14 @@
     height:250px;
 }
 
+.area-map
+{
+  
+    max-height: 670px;
+    height: 500px;
+    width:100%;
+}
+
 #map
 {
     color: #000;
@@ -26,6 +34,11 @@
     margin:0px;
     padding:0px;
     float:left;
+}
+
+.area .media
+{
+    float:none;
 }
 
 .media-heading
