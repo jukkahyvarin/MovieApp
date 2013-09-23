@@ -39,20 +39,24 @@
       <div class="collapse navbar-collapse navbar-ex1-collapse" data-ng-controller="NavCtrl">
         <!-- .nav, .navbar-search, .navbar-form, etc -->
         <ul class="nav navbar-nav">
-    
-        <li class="nav-divider"></li>
+        
+           <!-- <li>
+                Valittu alue: {{currentArea.Name}}
+            </li>-->
+
+            <li class="nav-divider"></li>
 
         <li class="dropdown">
           
-        <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
-            {{date | date:'dd.MM.yyyy'}}
-            <span class="caret"></span>
-        </a>
-        <ul class="dropdown-menu" role="menu">
-            <li data-ng-repeat="d in dates">
-                <a href="#/leffat/{{selectedarea.ID}}/{{d}}/{{selectedTime.t}}" data-ng-click="selectDate(d)">{{d | date:'dd.MM.yyyy'}}</a>
-            </li>
-        </ul>
+            <a class="dropdown-toggle" data-toggle="dropdown" data-target="#">
+                {{date | date:'dd.MM.yyyy'}}
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu" role="menu">
+                <li data-ng-repeat="d in dates">
+                    <a href="#/leffat/{{currentArea.ID}}/{{d}}/{{selectedTime.t}}" data-ng-click="selectDate(d)">{{d | date:'dd.MM.yyyy'}}</a>
+                </li>
+            </ul>
           
         </li>
          <li class="nav-divider"></li>
@@ -64,7 +68,7 @@
             </a>
             <ul class="dropdown-menu">
                 <li data-ng-repeat="t in times">
-                    <a href="#/leffat/{{selectedarea.ID}}/{{date}}/{{selectedTime.t}}" data-ng-click="selectTime(t)">{{t.t}}</a>
+                    <a href="#/leffat/{{currentArea.ID}}/{{date}}/{{selectedTime.t}}" data-ng-click="selectTime(t)">{{t.t}}</a>
                 </li>
             </ul>
 

@@ -2,7 +2,7 @@
 
 
 
-app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
+app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootScope, moviesService, GMapsService) {
     // *** Map initialization ***
     var radius = 0;
     $scope.selectedTheatre = {};
@@ -46,12 +46,12 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesS
 
         }, function () {
             // handleNoGeolocation(true);
-            $location.path('#/valitsealue');
+            $location.path('/valitsealue/e/1');
         });
     } else {
         // Browser doesn't support Geolocation
         // handleNoGeolocation(false);
-        $location.path('#/valitsealue');
+        $location.path('/valitsealue/e/1');
     }
 
 
@@ -79,6 +79,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesS
                     if (t.Name.indexOf(theatreName,0)>-1) {
                         $scope.selectedTheatre = t;
                         $scope.selectedTheatreAddress = results[0].formatted_address;
+                        $rootScope.currentArea = t;
 
                         var marker = new google.maps.Marker({
                             position: results[0].geometry.location,
@@ -89,6 +90,11 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesS
                         $scope.geocoding = false;
                     }
                 });
+                if ($scope.selectedTheatreAddress == '') {
+                    // could not find theatre. Redirect to theatre selection
+                    $scope.geocoding = false;
+                    $location.path('/valitsealue/e/1');
+                }
             });
         }
         else if (status == 'ZERO_RESULTS' && radius < 50000) {
@@ -103,18 +109,28 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, moviesS
 
 
 
-app.controller('AreaCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
+app.controller('AreaCtrl', function ($scope, $location, $routeParams, $rootScope, moviesService, GMapsService) {
     $scope.loadingAreas = true;
+    $scope.infoText = '';
+
     moviesService.getAreas().then(function (data) {
         $scope.areas = data.TheatreAreas.TheatreArea;
         $scope.loadingAreas = false;
     });
+
+    if ($routeParams.notfound && $routeParams.notfound==1) {
+        $scope.infoText = 'Lähintä teatteria ei pystytty päättelemään. Valitse teatteri / alue';
+    }
+
+    $scope.setArea = function (area) {
+        $rootScope.currentArea = area;
+    }
 });
 
 
 app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
 	
-   
+      
     $scope.date = $routeParams.date ? $routeParams.date : new Date();
 
    
@@ -169,58 +185,7 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
         $scope.selectedTime = t;
     };
 
-    //function getCity() {
-    //    if (navigator.geolocation) {
-    //        navigator.geolocation.getCurrentPosition(function (position) {
-    //            var latLng = position.coords.latitude.toString() + ',' + position.coords.longitude.toString();
-    //            GMapsService.getAddress(latLng).then(function (data) {
-    //                var city;
-    //                if (data && data.results) {
-    //                    angular.forEach(data.results, function (r, k) {
-    //                        if (r.types[0] == "administrative_area_level_3") {
-    //                            angular.forEach(r.address_components, function (ac, k) {
-    //                                if (ac.types[0] == "administrative_area_level_3") {
-    //                                    city= ac.short_name;
-    //                                }
-    //                            });
-    //                        }
-    //                    });
-    //                }
-    //                $scope.currentCity = city;
-    //            });
-    //        });
-    //        }
-    //}
    
-	//$scope.getClass = function (path) {
-	//    if ($location.path().substr(0, path.length) == path) {
-	//        return true;
-	//    }
-	//    else {
-	//        return false;
-	//    }
-	//}
-  
-    // Try HTML5 geolocation
-
-   
-
-    //if (navigator.geolocation) {
-    //    navigator.geolocation.getCurrentPosition(function (position) {
-    //        //var pos = new google.maps.LatLng(position.coords.latitude,
-    //        //                                 position.coords.longitude);
-    //        var latLng = position.coords.latitude.toString() + ',' + position.coords.longitude.toString();
-    //        GMapsService.getAddress(latLng).then(function (data) {
-    //            var city = data.results[0].;
-    //        });
-
-    //    }, function () {
-    //        // handleNoGeolocation(true);
-    //    });
-    //} else {
-    //    // Browser doesn't support Geolocation
-    //    // handleNoGeolocation(false);
-    //}
 	
 
 });

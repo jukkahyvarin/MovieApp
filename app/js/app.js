@@ -10,6 +10,9 @@ app.config(['$httpProvider', function ($httpProvider) {
     delete $httpProvider.defaults.headers.common['X-Requested-With'];
 }]);
 
+
+
+
 // Declare app level module which depends on filters, and services
 app.config(function($routeProvider) {
     $routeProvider
@@ -18,6 +21,9 @@ app.config(function($routeProvider) {
         })
         .when('/valitsealue', {
             templateUrl:'partials/areaSelect.html', controller: 'AreaCtrl'
+        })
+        .when('/valitsealue/e/:notfound', {
+            templateUrl: 'partials/areaSelect.html', controller: 'AreaCtrl'
         })
     	.when('/leffat/alue/:areaId',
     	 {
@@ -39,3 +45,7 @@ app.config(function($routeProvider) {
 });
 
 
+//Add this to have access to a global variable
+app.run(function ($rootScope) {
+    $rootScope.currentArea = {};
+});
