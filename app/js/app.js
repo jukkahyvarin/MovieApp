@@ -1,7 +1,7 @@
 'use strict';
 
 
-var app = angular.module('myApp', ['ngRoute', 'ngAnimate']);
+var app = angular.module('myApp', ['ngRoute', 'ngAnimate', 'ngCookies']);
 
 // enable cross domain calls
 app.config(['$httpProvider', function ($httpProvider) {

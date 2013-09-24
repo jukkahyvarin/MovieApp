@@ -1,4 +1,4 @@
-'use strict';
+ï»¿'use strict';
 
 
 
@@ -91,9 +91,35 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                     }
                 });
                 if ($scope.selectedTheatreAddress == '') {
-                    // could not find theatre. Redirect to theatre selection
-                    $scope.geocoding = false;
-                    $location.path('/valitsealue/e/1');
+
+                    angular.forEach(theatres, function (t, k) {
+                        var city = t.Name;
+                        var citysplit = t.Name.split('::');
+                        
+                        if (citysplit && citysplit.length > 1) {
+                            city = citysplit[0];
+                        }
+
+                        if (city != '' && results[0].formatted_address.indexOf(city, 0) > -1) {
+                            $scope.selectedTheatre = t;
+                            $scope.selectedTheatreAddress = results[0].formatted_address;
+                            $rootScope.currentArea = t;
+
+                            var marker = new google.maps.Marker({
+                                position: results[0].geometry.location,
+                                map: map,
+                                title: t.Name
+                            });
+                            map.setCenter(results[0].geometry.location);
+                            $scope.geocoding = false;
+                        }
+                    });
+
+                    if ($scope.selectedTheatreAddress == '') {
+                        // could not find theatre. Redirect to theatre selection
+                        $scope.geocoding = false;
+                        $location.path('/valitsealue/e/1');
+                    }
                 }
             });
         }
@@ -109,7 +135,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
 
 
 
-app.controller('AreaCtrl', function ($scope, $location, $routeParams, $rootScope, moviesService, GMapsService) {
+app.controller('AreaCtrl', function ($scope, $routeParams, $rootScope, moviesService, SessionService) {
     $scope.loadingAreas = true;
     $scope.infoText = '';
 
@@ -119,26 +145,37 @@ app.controller('AreaCtrl', function ($scope, $location, $routeParams, $rootScope
     });
 
     if ($routeParams.notfound && $routeParams.notfound==1) {
-        $scope.infoText = 'Lähintä teatteria ei pystytty päättelemään. Valitse teatteri / alue';
+        $scope.infoText = 'LÃ¤hintÃ¤ teatteria ei lÃ¶ytynyt. Valitse teatteri / alue';
     }
 
     $scope.setArea = function (area) {
-        $rootScope.currentArea = area;
+        SessionService.setCurrentArea(area);
+        $rootScope.currentArea = SessionService.getCurrentArea();
     }
+
 });
 
 
-app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesService, GMapsService) {
+app.controller('NavCtrl', function ($scope, $location, $routeParams, $rootScope, moviesService, GMapsService, SessionService) {
 	
-      
-    $scope.date = $routeParams.date ? $routeParams.date : new Date();
+    if (!$rootScope.currentArea || !$rootScope.currentArea.Name) {
+        $rootScope.currentArea = SessionService.getCurrentArea();
+    }
 
-   
+});
+
+
+
+app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesService) {
+    
+    $scope.date = $routeParams.date ? $routeParams.date : new Date();
+    
     moviesService.getScheduleDates($routeParams.areaId).then(function (data) {
         $scope.dates = data.Dates.dateTime;
         $scope.date = !$routeParams.date ? $scope.dates[0] : $routeParams.date;
     });
 
+   
     $scope.times = [
        { t: '08:00' },
        { t: '09:00' },
@@ -162,17 +199,19 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
 
     function setCurrentTime() {
         var curTime = new Date();
-        if ($routeParams.date) {
+        if ($routeParams.date && !$routeParams.time) {
             var selDate = new Date($routeParams.date);
             if (selDate && selDate.getDate() != curTime.getDate()) {
                 $scope.selectedTime = $scope.times[0];
                 return;
             }
         }
-        
-        var hours = curTime.getHours().toString();
-        var mytime = hours.length == 1 ? '0' + hours + ':00' : hours + ':00';
 
+        var hours = curTime.getHours().toString();
+        var tmptime = hours.length == 1 ? '0' + hours + ':00' : hours + ':00';
+
+        var mytime = $routeParams.time ? $routeParams.time : tmptime;
+        
         angular.forEach($scope.times, function (v, k) {
             if (v.t == mytime) {
                 $scope.selectedTime = v;
@@ -185,19 +224,11 @@ app.controller('NavCtrl', function ($scope, $location, $routeParams, moviesServi
         $scope.selectedTime = t;
     };
 
-   
-	
 
-});
-
-
-
-app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesService) {
-    
     $scope.area = $routeParams.areaId;
     
     $scope.date = $routeParams.date ? $routeParams.date : new Date();
-    $scope.selectedTime = $routeParams.time ? $routeParams.time : '08:00';
+    //$scope.selectedTime = $routeParams.time ? $routeParams.time : $scope.times[0];
     
     var schedDate = $filter('date')($scope.date, 'dd.MM.yyyy');
     $scope.loadingMovies = true;
@@ -215,7 +246,7 @@ app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesServ
 
    
     $scope.timeFilter = function (item) {
-        var dateStr = $scope.date.toString().replace('00:00:00', $scope.selectedTime + ':00');
+        var dateStr = $scope.date.toString().replace('00:00:00', $scope.selectedTime.t + ':00');
         var filterDate = new Date(dateStr);
         var itemDate = new Date(item.dttmShowStart);
         var ret = itemDate >= filterDate;
