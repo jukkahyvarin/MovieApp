@@ -41,6 +41,10 @@ app.config(function($routeProvider) {
     	 {
     	     templateUrl: 'partials/movieInfo.html', controller: 'MovieInfoCtrl'
     	 })
+        .when('/info', 
+        {
+            templateUrl: 'partials/info.html'
+        })
     	.otherwise({redirectTo: '/haealue'});
 });
 

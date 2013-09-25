@@ -2,7 +2,7 @@
 
 
 
-app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootScope, moviesService, GMapsService) {
+app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootScope, moviesService, GMapsService, SessionService) {
     // *** Map initialization ***
     var radius = 0;
     $scope.selectedTheatre = {};
@@ -81,7 +81,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                         $scope.gmapsTheatreName = results[0].name;
                         $scope.selectedTheatre = t;
                         $scope.selectedTheatreAddress = results[0].formatted_address;
-                        $rootScope.currentArea = t;
+                        setArea(t);
 
                         var marker = new google.maps.Marker({
                             position: results[0].geometry.location,
@@ -107,7 +107,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                             $scope.gmapsTheatreName = results[0].name;
                             $scope.selectedTheatre = t;
                             $scope.selectedTheatreAddress = results[0].formatted_address;
-                            $rootScope.currentArea = t;
+                            setArea(t);
 
                             var marker = new google.maps.Marker({
                                 position: results[0].geometry.location,
@@ -155,6 +155,11 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
         });
 
         iw.open(map, marker);
+    }
+
+    function setArea(area) {
+        $rootScope.currentArea = area;
+        SessionService.setCurrentArea(area);
     }
 
 });
@@ -341,7 +346,7 @@ app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesS
                 mapOptions);
 
             var qry = $scope.movie.Theatre.indexOf('Oulu') > -1 || $scope.movie.Theatre.indexOf('Rovaniemi') > -1 || $scope.movie.Theatre.indexOf('Plevna') > -1 ||
-                $scope.movie.Theatre.indexOf('Vantaa') > -1
+                $scope.movie.Theatre.indexOf('Vantaa') > -1 || $scope.movie.Theatre.indexOf('Espoo') > -1
                 ? 'Finnkino, ' + $scope.movie.Theatre : $scope.movie.Theatre;
             var request = {
                 location: map.center,
