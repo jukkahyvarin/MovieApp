@@ -6,6 +6,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
     // *** Map initialization ***
     var radius = 0;
     $scope.selectedTheatre = {};
+    $scope.gmapsTheatreName = '';
     $scope.selectedTheatreAddress = '';
     $scope.userLocation = 'Haetaan sijaintia';
     $scope.geocoding = true;
@@ -37,7 +38,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
             var latLng = position.coords.latitude.toString() + ',' + position.coords.longitude.toString();
             GMapsService.getAddress(latLng).then(function (data) {
                 if(data.results[0]) {
-                    $scope.userLocation = 'Sijaintisi: ' + data.results[0].formatted_address;
+                    $scope.userLocation = data.results[0].formatted_address;
                     searchTheatre();
                 }
             });
@@ -76,7 +77,8 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                 var theatre;
                 angular.forEach(theatres, function (t, k) {
                     var theatreName = results[0].name.replace('Finnkino','').trim();
-                    if (t.Name.indexOf(theatreName,0)>-1) {
+                    if (t.Name.indexOf(theatreName, 0) > -1) {
+                        $scope.gmapsTheatreName = results[0].name;
                         $scope.selectedTheatre = t;
                         $scope.selectedTheatreAddress = results[0].formatted_address;
                         $rootScope.currentArea = t;
@@ -87,6 +89,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                             title: t.Name
                         });
                         map.setCenter(results[0].geometry.location);
+                        addMapInfoWindow(marker, results[0].name, results[0].formatted_address);
                         $scope.geocoding = false;
                     }
                 });
@@ -101,6 +104,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                         }
 
                         if (city != '' && results[0].formatted_address.indexOf(city, 0) > -1) {
+                            $scope.gmapsTheatreName = results[0].name;
                             $scope.selectedTheatre = t;
                             $scope.selectedTheatreAddress = results[0].formatted_address;
                             $rootScope.currentArea = t;
@@ -111,6 +115,7 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
                                 title: t.Name
                             });
                             map.setCenter(results[0].geometry.location);
+                            addMapInfoWindow(marker, results[0].name, results[0].formatted_address);
                             $scope.geocoding = false;
                         }
                     });
@@ -129,6 +134,27 @@ app.controller('MapAreaCtrl', function ($scope, $location, $routeParams, $rootSc
         else {
             $scope.geocoding = false;
         }
+    }
+
+    function addMapInfoWindow(marker, title, content) {
+        var infoContent = '<div id="content">' +
+              '<div id="siteNotice">' +
+              '</div>' +
+              '<h1 id="firstHeading" class="firstHeading">' + title + '</h1>' +
+              '<div id="bodyContent">' +
+              '<p>' + content + '</p>' +
+              '</div>' +
+              '</div>';
+
+        var iw = new google.maps.InfoWindow({
+            content: infoContent
+        });
+
+        google.maps.event.addListener(marker, 'click', function () {
+            iw.open(map, marker);
+        });
+
+        iw.open(map, marker);
     }
 
 });
