@@ -19,13 +19,14 @@
       
          </div>
          <div>
-             <span">Lähin teatterisi:</span>
+             <span">Lähin teatteri:</span>
              <div class="alert alert-success" data-ng-show="gmapsTheatreName!=''">
                 <div>
                     <span class="span-3">{{gmapsTheatreName}},</span>&nbsp;&nbsp;<span class="span-3">{{selectedTheatreAddress}}</span>
                 </div>
                 <div class="area-btns text-center">
                     <a class="btn btn-primary" href="#/leffat/alue/{{selectedTheatre.ID}}">Näytä elokuvat</a>
+                    <div class="btn-divider visible-xs"></div>
                     <a class="btn btn-info" href="#/valitsealue">Valitse toinen teatteri</a>
                 </div>
              </div>    

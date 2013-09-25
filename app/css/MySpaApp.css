@@ -14,9 +14,14 @@
     border:none;
 }
 
+.movie-img
+{
+    display:inline;
+}
+
 .map-container
 {
-    max-width: 670px;
+    max-width:100%;
     max-height:250px;
     height:250px;
 }
@@ -90,4 +95,9 @@
 .area-btns
 {
     margin-top: 10px;
+}
+
+.btn-divider
+{
+    height:10px;
 }

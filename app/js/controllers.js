@@ -313,38 +313,50 @@ app.controller('MoviesCtrl', function ($scope, $routeParams, $filter, moviesServ
 app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesService) {
     var schedDate = $filter('date')($routeParams.date, 'dd.MM.yyyy');
     var map;
+   
+    var currLoc = getCurrentLocation(getMovie);
 
     $scope.loadingMovies = true;
-    moviesService.getMovie($routeParams.areaId, $routeParams.movieId, schedDate).then(function (data) {
-        if ($.isArray(data.Schedule.Shows.Show)) {
-            $scope.movie = data.Schedule.Shows.Show[0];
-        }
-        else {
-            $scope.movie = data.Schedule.Shows.Show;
-        }
 
+    function getMovie(currentLocation) {
+        moviesService.getMovie($routeParams.areaId, $routeParams.movieId, schedDate).then(function (data) {
+            if ($.isArray(data.Schedule.Shows.Show)) {
+                var mov = $filter('filter')(data.Schedule.Shows.Show, $scope.timeFilter);
+                $scope.movie = mov[0];
+            }
+            else {
+                $scope.movie = data.Schedule.Shows.Show;
+            }
 
+            var center = currentLocation && $scope.movie.Theatre.indexOf('Rovaniemi') < 0 ? currentLocation : new google.maps.LatLng(66.29, 25.43);
 
-        // *** Map initialization ***
-        google.maps.visualRefresh = true;
-        var mapOptions = {
-            center: new google.maps.LatLng(66.29, 25.43),
-            zoom: 14,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        map = new google.maps.Map(document.getElementById("map"),
-            mapOptions);
+            // *** Map initialization ***
+            google.maps.visualRefresh = true;
+            var mapOptions = {
+                center: center,
+                zoom: 16,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById("map"),
+                mapOptions);
 
-      
-        var request = {
-            location: map.center,
-            radius: '500',
-            query: 'Finnkino, ' + $scope.movie.Theatre
-        };
+            var qry = $scope.movie.Theatre.indexOf('Oulu') > -1 || $scope.movie.Theatre.indexOf('Rovaniemi') > -1 || $scope.movie.Theatre.indexOf('Plevna') > -1 ||
+                $scope.movie.Theatre.indexOf('Vantaa') > -1
+                ? 'Finnkino, ' + $scope.movie.Theatre : $scope.movie.Theatre;
+            var request = {
+                location: map.center,
+                radius: '500',
+                query: qry
+            };
 
-        searchTheatre(request);
-        $scope.loadingMovies = false;
-    });
+            searchTheatre(request);
+            $scope.loadingMovies = false;
+        });
+    }
+
+    $scope.timeFilter = function (item) {
+        return $routeParams.date == item.dttmShowStart;
+    };
 
     function searchTheatre(request) {
         var service = new google.maps.places.PlacesService(map);
@@ -353,13 +365,13 @@ app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesS
 
     function searchCallback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-            var loc = new google.maps.LatLng(results[0].geometry.location.ob, results[0].geometry.location.pb);
+            //var loc = new google.maps.LatLng(results[0].geometry.location.lat, results[0].geometry.location.lng);
             var marker = new google.maps.Marker({
-                position: loc,
+                position: results[0].geometry.location,
                 map: map,
                 title: results[0].name
             });
-            map.setCenter(loc);
+            map.setCenter(results[0].geometry.location);
 
             var infoContent ='<div id="content">'+
                 '<div id="siteNotice">'+
@@ -377,7 +389,25 @@ app.controller('MovieInfoCtrl', function ($scope, $routeParams, $filter, moviesS
             google.maps.event.addListener(marker, 'click', function () {
                 iw.open(map, marker);
             });
+
+            iw.open(map, marker);
         }
             
     }
+
+    function getCurrentLocation(getMovieCallback) {
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+
+                var currLoc = new google.maps.LatLng(position.coords.latitude,
+                                                 position.coords.longitude);
+
+                getMovieCallback(currLoc);
+            });
+
+        }
+    }
+
+    
 });
